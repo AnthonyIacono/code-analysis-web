@@ -222,7 +222,7 @@
         function sortObjListByProp(prop) {
             return function(objList) {
                 // Make a copy & don't mutate the passed in list
-                let result = objList.slice(1);
+                let result = objList.slice();
 
                 result.sort((a, b) => {
                     if (a[prop] < b[prop]) {
