@@ -202,6 +202,14 @@
             });
         }
 
+        /**
+         * Toggle the value passed in using the following rules:
+         * 1. If the current value is null, switch the value to true.
+         * 2. Otherwise, switch the value to !value.
+         */
+        function toggleBool(currentBool) {
+            return currentBool === null ? true : !currentBool;
+        }
 
         /**
          * Takes in a property of an object list, e.g. "name" below
@@ -211,26 +219,35 @@
          * And returns a function that will sort that list, e.g.
          *
          *    const sortPeopleByName = sortObjListByProp('name');
-         *    const sortedPeople = sortPeopleByName(people);
+         *    const sortedPeople = sortPeopleByName(people, true);
          *
          *  We now have:
          *
          *    console.log(sortedPeople)
          *    > [{ name: 'Jon' }, { name: 'Kevin' }, { name: 'Sam' }]
          *
+         * You may also sort the list backwards, e.g.
+         *
+         *    const sortPeopleByName = sortObjListByProp('name');
+         *    const sortedPeopleBackwards = sortPeopleByName(people, false);
+         *
+         *  We now have:
+         *
+         *    console.log(sortedPeopleBackwards)
+         *    > [{ name: 'Sam' }, { name: 'Kevin' }, { name: 'Jon' }]
          */
         function sortObjListByProp(prop) {
-            return function(objList) {
+            return function(objList, forward) {
                 // Make a copy & don't mutate the passed in list
                 let result = objList.slice();
 
                 result.sort((a, b) => {
                     if (a[prop] < b[prop]) {
-                        return -1;
+                        return forward ? -1 : 1;
                     }
 
                     if (a[prop] > b[prop]) {
-                        return 1;
+                        return forward ? 1 : -1;
                     }
 
                     return 1;
@@ -291,7 +308,10 @@
             getInitialState() {
                 return {
                     personList: [],
-                    visiblePersonList: []
+                    visiblePersonList: [],
+                    sortFirstForward: null,
+                    sortLastForward: null,
+                    searchQuery: ''
                 };
             },
 
@@ -304,25 +324,40 @@
             },
 
             _shuffleList() {
+                const searchResults = filterByName(this.state.searchQuery, this.state.personList);
+
                 this.setState({
-                    visiblePersonList: shuffleList(this.state.personList)
+                    visiblePersonList: shuffleList(searchResults)
                 });
             },
 
             _sortByFirst() {
+                const searchResults = filterByName(this.state.searchQuery, this.state.personList);
+
+                const newSortFirstForward = toggleBool(this.state.sortFirstForward);
+
                 this.setState({
-                    visiblePersonList: sortByFirstName(this.state.personList)
+                    sortFirstForward: newSortFirstForward,
+                    sortLastForward: null,
+                    visiblePersonList: sortByFirstName(searchResults, newSortFirstForward)
                 });
             },
 
             _sortByLast() {
+                const searchResults = filterByName(this.state.searchQuery, this.state.personList);
+
+                const newSortLastForward = toggleBool(this.state.sortLastForward);
+
                 this.setState({
-                    visiblePersonList: sortByLastName(this.state.personList)
+                    sortFirstForward: null,
+                    sortLastForward: newSortLastForward,
+                    visiblePersonList: sortByLastName(searchResults, newSortLastForward)
                 });
             },
 
             _onSearch(e) {
                 this.setState({
+                    searchQuery: e.target.value,
                     visiblePersonList: filterByName(e.target.value, this.state.personList)
                 });
             },
