@@ -328,14 +328,12 @@
             },
 
             render() {
-                const { visiblePersonList } = this.state;
-
                 return React.DOM.div({ className: 'app-container' }, [
                     React.createElement(Search, { key: 'search', onChange: this._onSearch }),
                     React.DOM.button({ key: 'shuffle', onClick: this._shuffleList }, null, 'Shuffle'),
                     React.DOM.button({ key: 'sort-first', onClick: this._sortByFirst }, null, 'Sort (First Name)'),
                     React.DOM.button({ key: 'sort-last', onClick: this._sortByLast }, null, 'Sort (Last Name)'),
-                    React.createElement(ListContainer, { key: 'list', personList: visiblePersonList })
+                    React.createElement(ListContainer, { key: 'list', personList: this.state.visiblePersonList })
                 ]);
             }
         });
