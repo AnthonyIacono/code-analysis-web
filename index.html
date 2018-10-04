@@ -161,12 +161,44 @@
 
 
         /**
-         * Remove any people that do not have the name we are
-         * searching for.
+         * Get all the words from a phrase string.
+         */
+        function getWords(phrase) {
+            let words = [];
+            let cleanedPhrase = phrase.replace(/[\s]+/g, ' ').trim();
+
+            if(phrase.length === 0 || cleanedPhrase === '') {
+                return words;
+            }
+
+            words = cleanedPhrase.split(' ');
+            return words;
+        }
+
+        /**
+         * Remove any people that do not have a name that
+         * contains one or more words from our search string.
          */
         function filterByName(searchForName, personList) {
+            // Get each word from the search query.
+            const searchTerms = getWords(searchForName);
+
+            // Filter our list of people...
             return personList.filter((person) => {
-                return person.firstName === searchForName || person.lastName === searchForName;
+                // If there are no search terms, return everyone in our list.
+                if(searchTerms.length === 0) {
+                    return true;
+                }
+
+                // Make sure that one or more search term is found inside 
+                return searchTerms.some((searchTerm) => {
+                    // Transform our search term into lowercase.
+                    searchTerm = searchTerm.trim().toLowerCase();
+
+                    // Check if the first name or last name contains our search term.
+                    return getFirstName(person).toLowerCase().indexOf(searchTerm) !== -1 ||
+                        getLastName(person).toLowerCase().indexOf(searchTerm) !== -1;
+                });
             });
         }
 
