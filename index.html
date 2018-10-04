@@ -131,7 +131,12 @@
 
         // headshot URLs are scheme relative //
         // prepend http: to prevent invalid schemes like file:// or uri://
+        // instead return null if the person does not have a headshot url defined
         const getImageUrl = (person) => {
+            if(person.headshot.url === undefined) {
+                return null;
+            }
+
             return `http:${person.headshot.url}`;
         };
 
@@ -224,11 +229,21 @@
             src: props.src
         });
 
-        const ListRow = (props) => React.DOM.tr({ key: `${props.person.firstName} ${props.person.lastName}` }, [
-            React.DOM.td({ key: 'thumb' }, React.createElement(Thumbnail, { src: getImageUrl(props.person) })),
-            React.DOM.td({ key: 'first' }, null, getFirstName(props.person)),
-            React.DOM.td({ key: 'last' }, null, getLastName(props.person)),
-        ]);
+        const NotPictured = (props) => React.DOM.span({
+            className: 'not-pictured',
+            children: 'Not Pictured'
+        });
+
+        const ListRow = (props) => {
+            const imageUrl = getImageUrl(props.person);
+            const imageElement = imageUrl === null ? NotPictured : Thumbnail;
+            
+            return React.DOM.tr({ key: `${props.person.firstName} ${props.person.lastName}` }, [
+                React.DOM.td({ key: 'thumb' }, React.createElement(imageElement, { src: imageUrl })),
+                React.DOM.td({ key: 'first' }, null, getFirstName(props.person)),
+                React.DOM.td({ key: 'last' }, null, getLastName(props.person)),
+            ]);
+        };
 
         const ListContainer = (props) => React.DOM.table({ className: 'list-container' }, [
             React.DOM.thead({ key: 'thead' }, React.DOM.tr({}, [
